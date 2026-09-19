@@ -1,0 +1,10 @@
+[package]
+name = "aoc2024-rs"
+version = "0.1.0"
+edition = "2024"
+
+[build-dependencies]
+reqwest = {version="0.13.5", features=["blocking"]}
+dotenvy = "0.15.7"
+
+[dependencies]
