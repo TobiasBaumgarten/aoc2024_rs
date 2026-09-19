@@ -1,1 +1,1 @@
-pub mod level_01;
+pub mod day_01;

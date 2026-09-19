@@ -23,7 +23,7 @@ fn load() -> Result<(), Box<dyn Error>> {
             .send()?
             .error_for_status()?
             .text()?;
-        let dest_file = dest_path.join(&format!("level_{:02}.txt", day));
+        let dest_file = dest_path.join(&format!("day_{:02}.txt", day));
         if dest_file.exists() {
             return Ok(()); // already fetched, don't hit the server again
         }
