@@ -1,11 +1,12 @@
-const SEARCH_WORD: &'static str = "XMAS";
+pub const SEARCH_WORD: &'static str = "XMAS";
 
-struct SearchWord<'a> {
+/// Helper struct
+struct Needle<'a> {
     word: &'a str,
     rev: String,
 }
 
-impl<'a> SearchWord<'a> {
+impl<'a> Needle<'a> {
     pub fn new(word: &'a str) -> Self {
         Self {
             word,
@@ -14,15 +15,20 @@ impl<'a> SearchWord<'a> {
     }
 
     pub fn count(&self, line: &str) -> u32 {
+        if line.len() < self.word.len() {
+            return 0;
+        }
         line.matches(self.word).count() as u32 + line.matches(&self.rev).count() as u32
     }
 }
 
-fn rows(input: &str, sw: &SearchWord) -> u32 {
-    input.lines().map(|l| sw.count(l)).sum::<u32>()
+/// handles the rows of the input
+fn rows(input: &str, needle: &Needle) -> u32 {
+    input.lines().map(|l| needle.count(l)).sum::<u32>()
 }
 
-fn columns(input: &str, sw: &SearchWord) -> u32 {
+/// handles the columns of the input
+fn columns(input: &str, sw: &Needle) -> u32 {
     let grid: Vec<&[u8]> = input.lines().map(|l| l.as_bytes()).collect();
     let mut buff_string = String::with_capacity(grid.len());
     let mut count = 0;
@@ -30,50 +36,91 @@ fn columns(input: &str, sw: &SearchWord) -> u32 {
     for i in 0..width {
         buff_string.clear();
         buff_string.extend(grid.iter().map(|row| row[i] as char));
-        dbg!(&buff_string);
         count += sw.count(&buff_string);
     }
 
     count
 }
 
-fn diagonal(input: &str, sw: &SearchWord) -> u32 {
+fn diagonal(input: &str, needle: &Needle) -> u32 {
+    // The idea here is to walk from left to right and then from right to left
+    // in a diagonal. To handle all cases i cannot start at 0,0
+    // because of this i have to start at -height till 0 till width
+    // here we skip all corrdinates
     let grid: Vec<&[u8]> = input.lines().map(|l| l.as_bytes()).collect();
     let mut count = 0;
     let width = grid[0].len();
-    let buff_string = String::with_capacity(width + grid.len());
-
+    let height = grid.len();
+    let size = width + height;
+    let mut buff_string = String::with_capacity(size);
+    for x_off in 0..size {
+        // helper function to reduce repetition
+        // the dir have to be 1 or -1
+        // so i can walk from left to right and right to left.
+        let mut build_dia = |x: i32, dir: i32| {
+            buff_string.clear();
+            for y in 0..height {
+                let x = x + (y as i32 * dir);
+                // let x: i32 = width as i32 - size as i32 + x_off as i32 + y as i32;
+                if x < 0 as i32 || x >= width as i32 {
+                    continue;
+                }
+                buff_string.push(grid[y][x as usize] as char);
+            }
+            count += needle.count(&*buff_string);
+        };
+        build_dia(width as i32 - size as i32 + x_off as i32, 1);
+        build_dia(x_off as i32, -1);
+    }
     count
+}
+
+/// Counts a word (`needle`) in a given hay stack.
+pub fn count_words(hay: &str, needle: &str) -> u32 {
+    let needle = Needle::new(needle);
+    rows(hay, &needle) + columns(hay, &needle) + diagonal(hay, &needle)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day_04;
-
     use super::*;
+    use crate::day_04;
     const INPUT: &'static str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/day_04.txt"));
-    const EXAMPLE: &'static str = "MMMSXXMASM
-    MSAMXMSMSA
-    AMXSXMAAMM
-    MSAMASMSMX
-    XMASAMXAMM
-    XXAMMXXAMA
-    SMSMSASXSS
-    SAXAMASAAA
-    MAMMMXMMMM
-    MXMXAXMASX";
+    const EXAMPLE: &'static str = "\
+MMMSXXMASM
+MSAMXMSMSA
+AMXSXMAAMM
+MSAMASMSMX
+XMASAMXAMM
+XXAMMXXAMA
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX";
+
+    #[test]
+    fn example_one() {
+        let count = count_words(EXAMPLE, SEARCH_WORD);
+        assert_eq!(count, 18);
+    }
+
+    #[test]
+    fn input_one() {
+        let count = count_words(INPUT, SEARCH_WORD);
+        assert_eq!(count, 2551);
+    }
 
     #[test]
     fn multi_word() {
         let test_line = "XMAS..SAMX";
-        assert_eq!(2, SearchWord::new(SEARCH_WORD).count(test_line));
+        assert_eq!(2, Needle::new(SEARCH_WORD).count(test_line));
     }
 
     #[test]
     fn rows() {
         let test_lines = "XMASXMAS
         SAMXSAMX";
-        let sw = SearchWord::new(SEARCH_WORD);
+        let sw = Needle::new(SEARCH_WORD);
         assert_eq!(4, day_04::rows(test_lines, &sw));
     }
 
@@ -84,7 +131,17 @@ M..A
 A..M
 S..X";
 
-        let sw = SearchWord::new(SEARCH_WORD);
+        let sw = Needle::new(SEARCH_WORD);
         assert_eq!(2, day_04::columns(test_lines, &sw));
+    }
+
+    #[test]
+    fn diagonal() {
+        let test_lines = "X..S
+.MA.
+.MA.
+X..S";
+        let sw = Needle::new(SEARCH_WORD);
+        assert_eq!(2, day_04::diagonal(test_lines, &sw));
     }
 }
