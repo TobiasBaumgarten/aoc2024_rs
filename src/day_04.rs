@@ -1,43 +1,55 @@
-use regex::Regex;
-
 const SEARCH_WORD: &'static str = "XMAS";
 
-struct SearchWord {
-    re: Regex,
+struct SearchWord<'a> {
+    word: &'a str,
+    rev: String,
 }
 
-impl SearchWord {
-    pub fn new(word: &str) -> Self {
-        let reverse: String = word.chars().rev().collect();
-        let re = Regex::new(&format!("{}|{}", word, reverse)).unwrap();
-        Self { re }
+impl<'a> SearchWord<'a> {
+    pub fn new(word: &'a str) -> Self {
+        Self {
+            word,
+            rev: word.chars().rev().collect::<String>(),
+        }
     }
 
-    pub fn count(&self, content: &str) -> i32 {
-        self.re.captures(content).iter().count() as i32
+    pub fn count(&self, line: &str) -> u32 {
+        line.matches(self.word).count() as u32 + line.matches(&self.rev).count() as u32
     }
 }
 
-fn count_xmax(word: &str, content: &str) -> i32 {
-    let sw = SearchWord::new(word);
+fn rows(input: &str, sw: &SearchWord) -> u32 {
+    input.lines().map(|l| sw.count(l)).sum::<u32>()
+}
 
-    let row_count = sw.count(content);
-    let lines: Vec<Vec<char>> = content.lines().map(|l| l.chars().collect()).collect();
-    let width = lines[0].len();
-    let height = lines.len();
-    let column = (0..width)
-        .map(|index| lines.iter().map(|row| row[index]).collect::<String>())
-        .collect::<String>();
-    let colum_count = sw.count(&column);
+fn columns(input: &str, sw: &SearchWord) -> u32 {
+    let grid: Vec<&[u8]> = input.lines().map(|l| l.as_bytes()).collect();
+    let mut buff_string = String::with_capacity(grid.len());
+    let mut count = 0;
+    let width = grid[0].len();
+    for i in 0..width {
+        buff_string.clear();
+        buff_string.extend(grid.iter().map(|row| row[i] as char));
+        dbg!(&buff_string);
+        count += sw.count(&buff_string);
+    }
 
-    // left dia
-    // right dia
+    count
+}
 
-    row_count + colum_count
+fn diagonal(input: &str, sw: &SearchWord) -> u32 {
+    let grid: Vec<&[u8]> = input.lines().map(|l| l.as_bytes()).collect();
+    let mut count = 0;
+    let width = grid[0].len();
+    let buff_string = String::with_capacity(width + grid.len());
+
+    count
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::day_04;
+
     use super::*;
     const INPUT: &'static str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/day_04.txt"));
     const EXAMPLE: &'static str = "MMMSXXMASM
@@ -52,7 +64,27 @@ mod tests {
     MXMXAXMASX";
 
     #[test]
-    fn test_contains_xmas() {
-        assert!(contains_xmas("MMMSXXMASM"));
+    fn multi_word() {
+        let test_line = "XMAS..SAMX";
+        assert_eq!(2, SearchWord::new(SEARCH_WORD).count(test_line));
+    }
+
+    #[test]
+    fn rows() {
+        let test_lines = "XMASXMAS
+        SAMXSAMX";
+        let sw = SearchWord::new(SEARCH_WORD);
+        assert_eq!(4, day_04::rows(test_lines, &sw));
+    }
+
+    #[test]
+    fn columns() {
+        let test_lines = "X..S
+M..A
+A..M
+S..X";
+
+        let sw = SearchWord::new(SEARCH_WORD);
+        assert_eq!(2, day_04::columns(test_lines, &sw));
     }
 }
