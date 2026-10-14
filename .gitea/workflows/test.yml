@@ -6,6 +6,7 @@ jobs:
   test-repro:
     runs-on: ubuntu-latest
     steps:
+      - name: Testing
       - uses: actions/checkout@v4
 
       - uses: dtolnay/rust-toolchain@stable
