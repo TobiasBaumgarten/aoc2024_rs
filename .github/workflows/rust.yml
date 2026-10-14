@@ -11,7 +11,7 @@ env:
   SESSION: ${{ secrets.SESSION }}
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
