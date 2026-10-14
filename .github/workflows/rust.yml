@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  SESSION: ${{ secrets.SESSION }}
 
 jobs:
   build:
@@ -16,6 +17,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Cache AoC data
+      uses: actions/cache@v4
+      with:
+        path: |
+          .aoc-cache
+          .challenges
+        key: aoc-data-2024
     - name: Clippy
       run: cargo clippy -- -D warnings
     - name: Run tests
