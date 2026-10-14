@@ -92,7 +92,7 @@ impl From<&str> for Lists {
 }
 
 /// calculates the similarity score for part 2.
-pub fn similarity_score(a: &Vec<i32>, b: &Vec<i32>) -> i32 {
+pub fn similarity_score(a: &[i32], b: &[i32]) -> i32 {
     a.iter()
         .map(|av| b.iter().filter(|bv| &av == bv).sum::<i32>())
         .sum()

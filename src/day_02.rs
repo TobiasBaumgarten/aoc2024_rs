@@ -5,7 +5,7 @@
 //!
 #![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
 
-pub fn is_safe(input: &Vec<i32>) -> bool {
+pub fn is_safe(input: &[i32]) -> bool {
     let diffs: Vec<_> = input.windows(2).map(|slice| slice[0] - slice[1]).collect();
     if diffs.iter().all(|v| v.is_positive()) || diffs.iter().all(|v| v.is_negative()) {
         return diffs.iter().all(|v| v.abs() <= 3);
@@ -42,7 +42,7 @@ impl Report {
         }
 
         for index in 0..self.levels.len() {
-            let temp = self
+            let temp: Vec<i32> = self
                 .levels
                 .iter()
                 .enumerate()

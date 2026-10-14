@@ -5,7 +5,7 @@
 //!
 #![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
 
-pub const SEARCH_WORD: &'static str = "XMAS";
+pub const SEARCH_WORD: &str = "XMAS";
 
 /// Helper struct
 struct Needle<'a> {
@@ -74,15 +74,15 @@ fn diagonal(input: &str, needle: &Needle) -> u32 {
         // so i can walk from left to right and right to left.
         let mut build_dia = |x: i32, dir: i32| {
             buff_string.clear();
-            for y in 0..height {
+            for (y, _) in grid.iter().enumerate().take(height) {
                 let x = x + (y as i32 * dir);
                 // let x: i32 = width as i32 - size as i32 + x_off as i32 + y as i32;
-                if x < 0 as i32 || x >= width as i32 {
+                if x < 0_i32 || x >= width as i32 {
                     continue;
                 }
                 buff_string.push(grid[y][x as usize] as char);
             }
-            count += needle.count(&*buff_string);
+            count += needle.count(&buff_string);
         };
         build_dia(width as i32 - size as i32 + x_off as i32, 1);
         build_dia(x_off as i32, -1);
@@ -107,10 +107,10 @@ fn diagonal_cross(input: &str, needle: &Needle) -> usize {
         // so i can walk from left to right and right to left.
         let mut build_dia = |x: i32, dir: i32| {
             buff_string.clear();
-            for y in 0..height {
+            for (y, _) in grid.iter().enumerate().take(height) {
                 let x = x + (y as i32 * dir);
                 // let x: i32 = width as i32 - size as i32 + x_off as i32 + y as i32;
-                if x < 0 as i32 || x >= width as i32 {
+                if x < 0_i32 || x >= width as i32 {
                     // here we have to push a filler instead
                     buff_string.push(' ');
                     continue;
@@ -118,7 +118,7 @@ fn diagonal_cross(input: &str, needle: &Needle) -> usize {
                 buff_string.push(grid[y][x as usize] as char);
             }
             positions.extend(
-                needle.positions(&*buff_string).map(|i| {
+                needle.positions(&buff_string).map(|i| {
                     // return i;
                     let offset = (i + 1) as i32;
                     (x + offset * dir, offset)

@@ -1,8 +1,7 @@
-use html2md;
 use reqwest::header::COOKIE;
 use std::{error::Error, path::Path};
-const YEAR: &'static str = "2024";
-const BASE_URL: &'static str = "https://adventofcode.com/";
+const YEAR: &str = "2024";
+const BASE_URL: &str = "https://adventofcode.com/";
 
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
@@ -27,7 +26,7 @@ fn download_challenges() -> Result<(), Box<dyn Error>> {
             .error_for_status()?
             .text()?;
         let md = html2md::rewrite_html(&response, true);
-        let dest_file = dest_path.join(&format!("day_{:02}.rs.md", day));
+        let dest_file = dest_path.join(format!("day_{:02}.rs.md", day));
         std::fs::write(dest_file, md)?;
     }
     Ok(())
@@ -48,7 +47,7 @@ fn download_input() -> Result<(), Box<dyn Error>> {
             .send()?
             .error_for_status()?
             .text()?;
-        let dest_file = dest_path.join(&format!("day_{:02}.rs.txt", day));
+        let dest_file = dest_path.join(format!("day_{:02}.rs.txt", day));
         if dest_file.exists() {
             return Ok(()); // already fetched, don't hit the server again
         }
