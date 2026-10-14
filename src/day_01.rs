@@ -1,5 +1,9 @@
 //! Solving the [day 01](https://adventofcode.com/2024/day/1) puzzle.
-
+//!
+//! Here you can find the challenge description from the website
+//!
+//!
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
 use std::{
     error::Error,
     fmt::{Debug, Display},
@@ -97,7 +101,7 @@ pub fn similarity_score(a: &Vec<i32>, b: &Vec<i32>) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/day_01.txt"));
+    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/", file!(), ".txt"));
     const EXAMPLE_INPUT: &'static str = "3   4
     4   3
     2   5

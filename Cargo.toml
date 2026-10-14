@@ -9,6 +9,7 @@ members = [".", "python"]
 [build-dependencies]
 reqwest = {version="0.13.5", features=["blocking"]}
 dotenvy = "0.15.7"
+fast_html2md   = "0.0.63"
 
 [dependencies]
 regex = "1.13.1"

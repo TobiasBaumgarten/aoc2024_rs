@@ -1,4 +1,9 @@
 //! Solving the [day 02](https://adventofcode.com/2024/day/2) puzzle.
+//!
+//! Here you can find the challenge description from the website
+//!
+//!
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
 
 pub fn is_safe(input: &Vec<i32>) -> bool {
     let diffs: Vec<_> = input.windows(2).map(|slice| slice[0] - slice[1]).collect();
@@ -66,7 +71,7 @@ impl From<&str> for Report {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/day_02.txt"));
+    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/", file!(), ".txt"));
     const EXAMPLE: &'static str = "7 6 4 2 1
     1 2 7 8 9
     9 7 6 2 1

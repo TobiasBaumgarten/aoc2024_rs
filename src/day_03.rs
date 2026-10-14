@@ -1,4 +1,9 @@
 //! Solving the [day 03](https://adventofcode.com/2024/day/3) puzzle.
+//!
+//! Here you can find the challenge description from the website
+//!
+//!
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
 
 use regex::Regex;
 
@@ -32,7 +37,7 @@ pub fn instruction_uncorrupt(sequence: &str) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const INPUT: &'static str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/day_03.txt"));
+    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/", file!(), ".txt"));
     const EXAMPLE: &'static str =
         "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
     const EXAMPLE_2: &'static str =

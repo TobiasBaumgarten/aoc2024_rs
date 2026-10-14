@@ -1,3 +1,10 @@
+//! Solving the [day 04](https://adventofcode.com/2024/day/4) puzzle.
+//!
+//! Here you can find the challenge description from the website
+//!
+//!
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
+
 pub const SEARCH_WORD: &'static str = "XMAS";
 
 /// Helper struct
@@ -85,7 +92,7 @@ pub fn count_words(hay: &str, needle: &str) -> u32 {
 mod tests {
     use super::*;
     use crate::day_04;
-    const INPUT: &'static str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/day_04.txt"));
+    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/", file!(), ".txt"));
     const EXAMPLE: &'static str = "\
 MMMSXXMASM
 MSAMXMSMSA
