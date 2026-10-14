@@ -37,7 +37,7 @@ fn download_challenges() -> Result<(), Box<dyn Error>> {
 
 /// Downloads the input from the advent of cade site
 fn download_input() -> Result<(), Box<dyn Error>> {
-    dotenvy::dotenv()?;
+    dotenvy::dotenv().ok();
     let out_dir = std::env::var_os("CARGO_MANIFEST_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join(".aoc_input/src");
     if dest_path.exists() {
