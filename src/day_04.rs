@@ -25,7 +25,15 @@ impl<'a> Needle<'a> {
         if line.len() < self.word.len() {
             return 0;
         }
-        line.matches(self.word).count() as u32 + line.matches(&self.rev).count() as u32
+        self.positions(line).count() as u32
+    }
+
+    /// Gives the position of the center
+    /// if there isn't a needle in the hay the vector will be empty
+    pub fn positions(&self, line: &str) -> impl Iterator<Item = usize> {
+        line.match_indices(&self.word)
+            .chain(line.match_indices(&self.rev))
+            .map(|(i, _)| i)
     }
 }
 
@@ -82,10 +90,65 @@ fn diagonal(input: &str, needle: &Needle) -> u32 {
     count
 }
 
+fn diagonal_cross(input: &str, needle: &Needle) -> usize {
+    // The idea here is to walk from left to right and then from right to left
+    // in a diagonal. To handle all cases i cannot start at 0,0
+    // because of this i have to start at -height till 0 till width
+    // here we skip all corrdinates
+    let grid: Vec<&[u8]> = input.lines().map(|l| l.as_bytes()).collect();
+    let mut positions = Vec::new();
+    let width = grid[0].len();
+    let height = grid.len();
+    let size = width + height;
+    let mut buff_string = String::with_capacity(size);
+    for x_off in 0..size {
+        // helper function to reduce repetition
+        // the dir have to be 1 or -1
+        // so i can walk from left to right and right to left.
+        let mut build_dia = |x: i32, dir: i32| {
+            buff_string.clear();
+            for y in 0..height {
+                let x = x + (y as i32 * dir);
+                // let x: i32 = width as i32 - size as i32 + x_off as i32 + y as i32;
+                if x < 0 as i32 || x >= width as i32 {
+                    // here we have to push a filler instead
+                    buff_string.push(' ');
+                    continue;
+                }
+                buff_string.push(grid[y][x as usize] as char);
+            }
+            positions.extend(
+                needle.positions(&*buff_string).map(|i| {
+                    // return i;
+                    let offset = (i + 1) as i32;
+                    (x + offset * dir, offset)
+                }),
+                // here we hardcoded the center of M*A*S
+            );
+        };
+        build_dia(width as i32 - size as i32 + x_off as i32, 1);
+        build_dia(x_off as i32, -1);
+    }
+    let original_length = positions.len();
+    positions.sort_unstable();
+    positions.dedup();
+    original_length - positions.len()
+}
+
 /// Counts a word (`needle`) in a given hay stack.
 pub fn count_words(hay: &str, needle: &str) -> u32 {
     let needle = Needle::new(needle);
     rows(hay, &needle) + columns(hay, &needle) + diagonal(hay, &needle)
+}
+
+/// counts all crossing needles
+pub fn find_crossing(hey: &str, needle: &str) -> usize {
+    assert!(
+        needle.len() == 3,
+        "currently only supports a 3 length needle"
+    );
+    let needle = Needle::new(needle);
+    diagonal_cross(hey, &needle)
 }
 
 #[cfg(test)]
@@ -105,6 +168,18 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
+    const EXAMPLE_TWO: &'static str = "\
+.M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........";
+
     #[test]
     fn example_one() {
         let count = count_words(EXAMPLE, SEARCH_WORD);
@@ -112,9 +187,20 @@ MXMXAXMASX";
     }
 
     #[test]
+    fn example_two() {
+        let count = find_crossing(EXAMPLE_TWO, "MAS");
+        assert_eq!(count, 9);
+    }
+
+    #[test]
     fn input_one() {
         let count = count_words(INPUT, SEARCH_WORD);
         assert_eq!(count, 2551);
+    }
+
+    #[test]
+    fn input_two() {
+        assert_eq!(1985, find_crossing(INPUT, "MAS"));
     }
 
     #[test]
@@ -150,5 +236,15 @@ S..X";
 X..S";
         let sw = Needle::new(SEARCH_WORD);
         assert_eq!(2, day_04::diagonal(test_lines, &sw));
+    }
+
+    #[test]
+    fn diagonal_cross() {
+        let test_lines = "\
+M.S
+.A.
+M.S";
+        let needle = Needle::new("MAS");
+        assert_eq!(1, day_04::diagonal_cross(test_lines, &needle));
     }
 }
