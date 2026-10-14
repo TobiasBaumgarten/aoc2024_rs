@@ -1,3 +1,5 @@
 /target
 .env
 codebook.toml
+.aoc_input/src
+.challenges/src

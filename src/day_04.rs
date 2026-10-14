@@ -3,7 +3,7 @@
 //! Here you can find the challenge description from the website
 //!
 //!
-#![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/.challenges/", file!(), ".md"))]
 
 pub const SEARCH_WORD: &str = "XMAS";
 
@@ -155,7 +155,12 @@ pub fn find_crossing(hey: &str, needle: &str) -> usize {
 mod tests {
     use super::*;
     use crate::day_04;
-    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/", file!(), ".txt"));
+    const INPUT: &str = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/.aoc_input/",
+        file!(),
+        ".txt"
+    ));
     const EXAMPLE: &'static str = "\
 MMMSXXMASM
 MSAMXMSMSA

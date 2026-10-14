@@ -10,4 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.29.0"
-aoc2024-rs = {path="../"}
+aoc2024_rs = {path="../"}

@@ -15,8 +15,11 @@ fn main() {
 }
 
 fn download_challenges() -> Result<(), Box<dyn Error>> {
-    let out_dir = std::env::var_os("OUT_DIR").unwrap();
-    let dest_path = Path::new(&out_dir).join("challenges/src");
+    let out_dir = std::env::var_os("CARGO_MANIFEST_DIR").unwrap();
+    let dest_path = Path::new(&out_dir).join(".challenges/src");
+    if dest_path.exists() {
+        return Ok(());
+    }
     std::fs::create_dir_all(&dest_path)?;
     for day in 1..25 {
         let url = format!("{BASE_URL}{YEAR}/day/{day}");
@@ -35,8 +38,11 @@ fn download_challenges() -> Result<(), Box<dyn Error>> {
 /// Downloads the input from the advent of cade site
 fn download_input() -> Result<(), Box<dyn Error>> {
     dotenvy::dotenv()?;
-    let out_dir = std::env::var_os("OUT_DIR").unwrap();
-    let dest_path = Path::new(&out_dir).join("aoc_input/src");
+    let out_dir = std::env::var_os("CARGO_MANIFEST_DIR").unwrap();
+    let dest_path = Path::new(&out_dir).join(".aoc_input/src");
+    if dest_path.exists() {
+        return Ok(());
+    }
     std::fs::create_dir_all(&dest_path)?;
     let session = std::env::var("SESSION").expect("SESSION not set");
     for day in 1..25 {

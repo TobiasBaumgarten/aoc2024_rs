@@ -3,7 +3,7 @@
 //! Here you can find the challenge description from the website
 //!
 //!
-#![doc = include_str!(concat!(env!("OUT_DIR"), "/challenges/", file!(), ".md"))]
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/.challenges/", file!(), ".md"))]
 use std::{
     error::Error,
     fmt::{Debug, Display},
@@ -101,7 +101,12 @@ pub fn similarity_score(a: &[i32], b: &[i32]) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const INPUT: &str = include_str!(concat!(env!("OUT_DIR"), "/aoc_input/", file!(), ".txt"));
+    const INPUT: &str = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/.aoc_input/",
+        file!(),
+        ".txt"
+    ));
     const EXAMPLE_INPUT: &'static str = "3   4
     4   3
     2   5
