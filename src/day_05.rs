@@ -1,5 +1,5 @@
 use std::{
-    cmp::Ordering,
+    cmp::Ordering::{self, Greater},
     collections::{HashMap, HashSet},
 };
 
@@ -65,21 +65,7 @@ impl SafetyScanner {
     }
 
     fn check_sequence(&self, sequence: &[u32]) -> bool {
-        let mut iter = sequence.iter().enumerate();
-        iter.next(); // skip the first index
-        for (i, part) in iter {
-            let Some(ruleset) = self.rules.get(part) else {
-                continue;
-            };
-            // it is not allowed that the numbers in the `ruleset` are in the part before.
-            if !sequence[..=i]
-                .iter()
-                .all(|before| !ruleset.contains(before))
-            {
-                return false;
-            }
-        }
-        true
+        sequence.is_sorted_by(|a, b| self.compare(a, b) != Greater)
     }
 
     fn parse_rule(line: &str) -> (u32, u32) {
