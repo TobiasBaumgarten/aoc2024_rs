@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
+};
 
 #[derive(Debug, Default, Clone)]
 pub struct SafetyScanner {
@@ -26,13 +29,38 @@ impl SafetyScanner {
         s
     }
 
-    pub fn get_valid_sequences(&self) -> impl Iterator<Item = &Vec<u32>> {
+    fn get_valid_sequences(&self) -> impl Iterator<Item = &Vec<u32>> {
         self.sequences.iter().filter(|s| self.check_sequence(s))
+    }
+
+    /// used for [`Self::get_fixed_sequences`]
+    fn compare(&self, a: &u32, b: &u32) -> Ordering {
+        if self.rules.get(a).is_some_and(|after| after.contains(b)) {
+            Ordering::Less
+        } else if self.rules.get(b).is_some_and(|after| after.contains(a)) {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        }
+    }
+
+    /// fixes the sequence by reordering
+    fn get_fixed_sequences(&self) -> impl Iterator<Item = Vec<u32>> {
+        let incorrect = self.sequences.iter().filter(|s| !self.check_sequence(s));
+        incorrect.map(|sequence| {
+            let mut sequence = sequence.clone();
+            sequence.sort_by(|a, b| self.compare(a, b));
+            sequence
+        })
+    }
+
+    pub fn middle_sum_incorrect(&self) -> u32 {
+        self.get_fixed_sequences().map(|s| s[s.len() / 2]).sum()
     }
 
     /// the function for the first part of the puzzle
     /// gives the sum of all middle numbers that are valid valid
-    pub fn middle_sum(&self) -> u32 {
+    pub fn middle_sum_correct(&self) -> u32 {
         self.get_valid_sequences().map(|s| s[s.len() / 2]).sum()
     }
 
@@ -99,13 +127,20 @@ mod tests {
     fn test_example() {
         let s = SafetyScanner::new(EXAMPLE);
         assert_eq!(3, s.get_valid_sequences().count());
-        assert_eq!(143, s.middle_sum());
+        assert_eq!(143, s.middle_sum_correct());
+        assert_eq!(123, s.middle_sum_incorrect());
     }
 
     #[test]
     fn test_input_one() {
         let s = SafetyScanner::new(INPUT);
-        assert_eq!(5639, s.middle_sum());
+        assert_eq!(5639, s.middle_sum_correct());
+    }
+
+    #[test]
+    fn test_input_two() {
+        let s = SafetyScanner::new(INPUT);
+        assert_eq!(5273, s.middle_sum_incorrect());
     }
 
     #[test]
@@ -116,34 +151,34 @@ mod tests {
         // check if all rules are in it
         assert_eq!(21usize, s.rules.iter().map(|(_, set)| set.len()).sum());
     }
+
+    const EXAMPLE: &str = "\
+    47|53
+    97|13
+    97|61
+    97|47
+    75|29
+    61|13
+    75|53
+    29|13
+    97|29
+    53|29
+    61|53
+    97|53
+    61|29
+    47|13
+    75|47
+    97|75
+    47|61
+    75|61
+    47|29
+    75|13
+    53|13
+
+    75,47,61,53,29
+    97,61,53,29,13
+    75,29,13
+    75,97,47,61,53
+    61,13,29
+    97,13,75,29,47";
 }
-
-const EXAMPLE: &str = "\
-47|53
-97|13
-97|61
-97|47
-75|29
-61|13
-75|53
-29|13
-97|29
-53|29
-61|53
-97|53
-61|29
-47|13
-75|47
-97|75
-47|61
-75|61
-47|29
-75|13
-53|13
-
-75,47,61,53,29
-97,61,53,29,13
-75,29,13
-75,97,47,61,53
-61,13,29
-97,13,75,29,47";
